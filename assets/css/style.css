@@ -1,0 +1,417 @@
+/**
+ * Sargodha Mandi - Production Stylesheet
+ * Clean Pakistani Marketplace Aesthetics (Sargodha | Shaheenabad | Sillanwali)
+ */
+
+:root {
+    --primary: #15803d;         /* Pakistani Forest Green */
+    --primary-hover: #166534;
+    --primary-light: #f0fdf4;
+    --primary-border: #bbf7d0;
+    --dark: #0f172a;            /* Slate 900 */
+    --dark-muted: #334155;      /* Slate 700 */
+    --text-muted: #64748b;      /* Slate 500 */
+    --bg-canvas: #f8fafc;       /* Slate 50 */
+    --surface: #ffffff;
+    --border-hairline: #e2e8f0; /* Slate 200 */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+}
+
+body {
+    background-color: var(--bg-canvas);
+    color: var(--dark);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Tabular Numbers for Prices & Metrics */
+.tabular-nums, .price-tag, .stat-value {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+}
+
+/* Navbar & Top Bar */
+.navbar-custom {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-hairline);
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.brand-mark {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--dark);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.brand-mark:hover {
+    color: var(--primary);
+}
+
+.city-strip {
+    background: #0f172a;
+    color: #cbd5e1;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0;
+}
+
+.city-badge {
+    color: #e2e8f0;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.city-badge:hover {
+    color: #4ade80;
+}
+
+/* Hero Section */
+.hero-banner {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background-color: #0f172a;
+    color: #ffffff;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-hairline);
+}
+
+.hero-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.78) 50%, rgba(15,23,42,0.4) 100%);
+    z-index: 1;
+}
+
+.hero-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+}
+
+/* Category Grid & Cards */
+.category-card {
+    background: #ffffff;
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    padding: 1rem 0.75rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    color: var(--primary);
+}
+
+.category-icon {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+/* Product Cards */
+.listing-card {
+    background: #ffffff;
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+    position: relative;
+}
+
+.listing-card:hover {
+    transform: translateY(-3px);
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    color: inherit;
+}
+
+.listing-thumb-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background-color: #f1f5f9;
+    overflow: hidden;
+}
+
+.listing-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.listing-card:hover .listing-thumb {
+    transform: scale(1.03);
+}
+
+.featured-ribbon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #eab308;
+    color: #713f12;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-sm);
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.listing-card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.listing-price {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+}
+
+.listing-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--dark);
+    line-height: 1.35;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.listing-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Action Buttons */
+.btn-primary-green {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.btn-primary-green:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: #ffffff;
+}
+
+.btn-whatsapp {
+    background-color: #25d366;
+    border-color: #25d366;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.btn-whatsapp:hover {
+    background-color: #1ebd5a;
+    border-color: #1ebd5a;
+    color: #ffffff;
+}
+
+.btn-call {
+    background-color: #0284c7;
+    border-color: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.btn-call:hover {
+    background-color: #0369a1;
+    border-color: #0369a1;
+    color: #ffffff;
+}
+
+/* Details Page Layout */
+.product-gallery-main {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #f1f5f9;
+    border: 1px solid var(--border-hairline);
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-thumbs-grid {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+
+.product-thumb-item {
+    width: 70px;
+    height: 70px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.product-thumb-item.active {
+    border-color: var(--primary);
+}
+
+.product-thumb-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Seller Card */
+.seller-box {
+    background: #ffffff;
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Trust & How it Works Box */
+.trust-step {
+    background: #ffffff;
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    height: 100%;
+}
+
+.step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Chat Styling */
+.chat-window {
+    background: #ffffff;
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    height: 520px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.chat-bubble {
+    max-width: 75%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.chat-bubble.mine {
+    align-self: flex-end;
+    background-color: var(--primary);
+    color: #ffffff;
+    border-bottom-right-radius: 2px;
+}
+
+.chat-bubble.other {
+    align-self: flex-start;
+    background-color: #ffffff;
+    color: var(--dark);
+    border: 1px solid var(--border-hairline);
+    border-bottom-left-radius: 2px;
+}
+
+.chat-time {
+    font-size: 0.7rem;
+    opacity: 0.75;
+    margin-top: 0.25rem;
+    text-align: right;
+}
+
+/* Mobile Sticky Bottom Action Bar */
+@media (max-width: 768px) {
+    .mobile-sticky-action {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid var(--border-hairline);
+        padding: 0.65rem 1rem;
+        z-index: 1030;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+        display: flex;
+        gap: 0.5rem;
+    }
+}

@@ -1,0 +1,38 @@
+# Sargodha Mandi - Production Apache / Hostinger Configuration
+# Security, Directory Protection, and Clean Routing
+
+# 1. Disable Directory Browsing
+Options -Indexes
+
+# 2. Prevent Access to Sensitive Files & Folders
+<FilesMatch "^(database\.sql|database\.sqlite|\.env.*|\.git.*|composer\..*)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Block direct access to config and includes directories
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+
+    # Block script execution inside uploads directory
+    RewriteRule ^uploads/.*\.php$ - [F,L]
+</IfModule>
+
+# 3. Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# 4. Upload Size and Execution Settings
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 12M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>
