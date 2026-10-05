@@ -110,7 +110,8 @@ export async function broadcastToTelegram(
   type: 'product' | 'job' | 'announcement',
   item: any,
   channelId: string = '-1003328935535',
-  websiteUrl?: string
+  websiteUrl?: string,
+  force: boolean = false
 ): Promise<TelegramActionResponse> {
   // Safety checks
   if (!item) {
@@ -137,13 +138,16 @@ export async function broadcastToTelegram(
         item,
         channelId,
         websiteUrl: websiteUrl || window.location.origin,
+        force,
       }),
     });
-    return await res.json();
+
+    const data = await res.json();
+    return data;
   } catch (err: any) {
     return {
       success: false,
-      error: err.message || 'Network error broadcasting to Telegram.',
+      error: err.message ? err.message.replace(/bot[a-zA-Z0-9_-]+/g, 'bot[REDACTED]') : 'Network error broadcasting to Telegram.',
     };
   }
 }

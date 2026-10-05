@@ -35,9 +35,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Featured Badge */}
         {listing.isFeatured && (
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-lg shadow-fuchsia-600/30">
-            <Sparkles className="w-3 h-3" />
-            Featured
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-lg shadow-orange-500/30">
+            <span>⭐</span>
+            FEATURED
           </div>
         )}
 

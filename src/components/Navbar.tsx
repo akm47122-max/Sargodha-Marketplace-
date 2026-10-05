@@ -5,8 +5,8 @@ import { getActiveAnnouncements } from '../utils/settings';
 import { INITIAL_DISTRICTS, INITIAL_TEHSILS, INITIAL_AREAS } from '../data/locationData';
 
 interface NavbarProps {
-  currentView: 'home' | 'jobs' | 'dashboard' | 'admin' | 'post-ad' | 'post-job';
-  setCurrentView: (view: 'home' | 'jobs' | 'dashboard' | 'admin' | 'post-ad' | 'post-job') => void;
+  currentView: 'home' | 'jobs' | 'skills' | 'dashboard' | 'admin' | 'post-ad' | 'post-job';
+  setCurrentView: (view: 'home' | 'jobs' | 'skills' | 'dashboard' | 'admin' | 'post-ad' | 'post-job') => void;
   currentUser: UserProfile | null;
   users: UserProfile[];
   onSwitchUser: (user: UserProfile) => void;
@@ -276,6 +276,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Briefcase className="w-3.5 h-3.5 text-blue-600" />
             Jobs & Work
+          </button>
+
+          <button
+            onClick={() => setCurrentView('skills')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              currentView === 'skills'
+                ? 'bg-white text-emerald-800 border border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.18)]'
+                : 'text-slate-600 hover:text-slate-950 hover:bg-white/60'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            Digital Skills
           </button>
 
           <button

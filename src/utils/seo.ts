@@ -5,7 +5,7 @@ interface SEOConfig {
   description: string;
   image?: string;
   url?: string;
-  type?: 'website' | 'product' | 'article';
+  type?: 'website' | 'product' | 'article' | 'profile';
   jsonLd?: Record<string, any>;
 }
 

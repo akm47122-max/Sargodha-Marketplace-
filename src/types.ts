@@ -4,6 +4,26 @@ export type ActivationStatus = 'pending' | 'active' | 'rejected' | 'suspended';
 export type JobPostType = 'need_job' | 'need_worker';
 
 // ==========================================
+// User Telegram Number & Verification Status
+// ==========================================
+export type TelegramVerificationStatus = 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+export type TelegramVisibility = 'VISIBLE' | 'HIDDEN';
+export type ContactPrivacy = 'SHOW_ALL' | 'WHATSAPP_ONLY' | 'CALL_WHATSAPP' | 'HIDE_PHONE';
+
+export interface UserTelegramAuditLog {
+  id: number;
+  userId: number;
+  userName: string;
+  telegramNumber: string;
+  status: TelegramVerificationStatus;
+  actionType: 'SUBMIT' | 'APPROVE' | 'REJECT' | 'REVOKE' | 'CHANGE_INVALIDATED';
+  reviewedBy?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
+  timestamp: string;
+}
+
+// ==========================================
 // Location Hierarchy: Division → District → Tehsil → Area
 // ==========================================
 export interface Division {
@@ -43,6 +63,15 @@ export interface UserProfile {
   role: 'user' | 'admin' | 'super_admin';
   activationStatus: ActivationStatus;
   joinedDate: string;
+  // User Telegram Number & Verification
+  telegramNumber?: string;
+  telegramStatus?: TelegramVerificationStatus;
+  telegramSubmittedAt?: string;
+  telegramReviewedBy?: string;
+  telegramReviewedAt?: string;
+  telegramRejectionReason?: string;
+  telegramVisibility?: TelegramVisibility;
+  contactPrivacy?: ContactPrivacy;
 }
 
 export interface Category {
@@ -130,7 +159,13 @@ export interface ActivationPayment {
   paymentScreenshot: string;
   whatsappScreenshot: string;
   status: 'pending' | 'approved' | 'rejected';
+  activationType?: 'FREE' | 'PAID';
+  isFreeSlot?: boolean;
   adminNote?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
+  approvedAt?: string;
   createdAt: string;
 }
 
@@ -245,6 +280,8 @@ export interface SiteSettings {
 
   // 8. Seller Activation Settings
   activationFee: number;
+  freeSellerActivationLimit: number;
+  isFreeSellerOfferActive: boolean;
   paymentAccountTitle: string;
   easyPaisaNumber: string;
   jazzCashNumber: string;
@@ -278,16 +315,177 @@ export interface SiteSettings {
   telegramAutoPublishJobs: boolean;
   telegramAutoPublishAnnouncements: boolean;
   telegramTokenConfigured: boolean;
+
+  // 11. Promotion & Feature Settings
+  promoProductEnabled: boolean;
+  promoProductPrice: number;
+  promoProductDuration: number;
+  promoProductTitle: string;
+  promoProductDesc: string;
+  promoSkillEnabled: boolean;
+  promoSkillPrice: number;
+  promoSkillDuration: number;
+  promoSkillTitle: string;
+  promoSkillDesc: string;
+  telegramAutoPublishPromotions: boolean;
+  jobEmailNotificationsEnabled: boolean;
+}
+
+export type PromotionType = 'PRODUCT' | 'SKILL';
+export type PromotionStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED';
+
+export interface PromotionPayment {
+  id: number;
+  userId: number;
+  userName: string;
+  userPhone?: string;
+  promotionType: PromotionType;
+  entityType: 'PRODUCT' | 'SKILL_PROFILE';
+  entityId: number;
+  entityTitle: string;
+  amount: number;
+  durationDays: number;
+  transactionReference: string;
+  paymentScreenshot: string;
+  status: PromotionStatus;
+  rejectionReason?: string;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  startAt?: string;
+  endAt?: string;
+  createdAt: string;
+}
+
+export interface DigitalSkillProfile {
+  id: number;
+  userId: number;
+  fullName: string;
+  username: string;
+  profilePhoto: string;
+  professionalTitle: string;
+  mainSkill: string;
+  category: string;
+  skills: string[];
+  experience: string;
+  about: string;
+  divisionId?: number;
+  districtId?: number;
+  tehsilId?: number;
+  areaId?: number;
+  divisionName?: string;
+  districtName?: string;
+  tehsilName?: string;
+  areaName?: string;
+  phone: string;
+  whatsapp: string;
+  email?: string;
+  showEmail?: boolean;
+  portfolioLinks?: { label: string; url: string }[];
+  servicesOffered: string[];
+  startingRate?: number;
+  availability: 'Full-time' | 'Part-time' | 'Freelance' | 'Hourly';
+  cvFilePath?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  isFeatured: boolean;
+  featuredStartAt?: string;
+  featuredEndAt?: string;
+  createdAt: string;
 }
 
 export interface TelegramLogItem {
   id: number;
-  contentType: 'product' | 'job' | 'announcement' | 'test';
+  contentType: 'product' | 'job' | 'announcement' | 'test' | 'advertisement';
   contentId?: number;
   title: string;
   status: 'success' | 'failed';
   messageId?: string;
   errorMessage?: string;
   timestamp: string;
+}
+
+// ==========================================
+// Advertising Pricing & Management System
+// ==========================================
+export type AdPlacement =
+  | 'Homepage'
+  | 'Category Page'
+  | 'Product Page'
+  | 'Jobs Page'
+  | 'Digital Skills Page'
+  | 'Search Results'
+  | 'Location Page'
+  | 'Telegram Channel'
+  | 'Multiple Website Locations';
+
+export interface AdvertisingPackage {
+  id: number;
+  name: string;
+  adType: string;
+  description: string;
+  price: number;
+  durationDays: number;
+  placements: AdPlacement[];
+  telegramEnabled: boolean;
+  recommended: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  features: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type AdStatus = 'PENDING' | 'APPROVED' | 'ACTIVE' | 'EXPIRED' | 'REJECTED' | 'SUSPENDED';
+
+export interface Advertisement {
+  id: number;
+  userId: number;
+  userName: string;
+  userPhone?: string;
+  userEmail?: string;
+  packageId: number;
+  packageName: string;
+  adType: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  targetUrl?: string;
+  phone: string;
+  whatsapp: string;
+  location: string;
+  placements: AdPlacement[];
+  status: AdStatus;
+  amountPaid: number;
+  durationDays: number;
+  transactionReference: string;
+  paymentScreenshot: string;
+  rejectionReason?: string;
+  startAt?: string;
+  endAt?: string;
+  telegramEnabled: boolean;
+  telegramStatus?: 'pending' | 'published' | 'failed' | 'not_applicable';
+  telegramMessageId?: string;
+  telegramPublishedAt?: string;
+  telegramError?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AdvertisingPayment {
+  id: number;
+  advertisementId: number;
+  userId: number;
+  userName: string;
+  packageId: number;
+  packageName: string;
+  amount: number;
+  durationDays: number;
+  transactionReference: string;
+  paymentScreenshot: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
+  rejectionReason?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  createdAt: string;
 }
 

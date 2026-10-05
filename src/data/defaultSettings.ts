@@ -126,6 +126,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
 
   // 8. Seller Activation Settings
   activationFee: 1000,
+  freeSellerActivationLimit: 20,
+  isFreeSellerOfferActive: true,
   paymentAccountTitle: 'Muhammad Akram Tayyab',
   easyPaisaNumber: '03127453108',
   jazzCashNumber: '03127453108',
@@ -163,6 +165,20 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   telegramAutoPublishJobs: true,
   telegramAutoPublishAnnouncements: true,
   telegramTokenConfigured: false,
+
+  // 11. Promotion & Feature Settings
+  promoProductEnabled: true,
+  promoProductPrice: 1000,
+  promoProductDuration: 15,
+  promoProductTitle: 'Featured Product Promotion',
+  promoProductDesc: 'Top featured placement across SargodhaMart homepage & search for 15 days with ⭐ Featured badge.',
+  promoSkillEnabled: true,
+  promoSkillPrice: 1000,
+  promoSkillDuration: 15,
+  promoSkillTitle: 'Featured Digital Skill Profile',
+  promoSkillDesc: 'Priority placement in Digital Skills directory & search with ⭐ Featured badge for 15 days.',
+  telegramAutoPublishPromotions: true,
+  jobEmailNotificationsEnabled: true,
 };
 
 export const INITIAL_ANNOUNCEMENTS: AnnouncementItem[] = [

@@ -1,4 +1,4 @@
-import { Category, UserProfile, Listing, JobPost, ActivationPayment, ReportItem } from '../types';
+import { Category, UserProfile, Listing, JobPost, ActivationPayment, ReportItem, PromotionPayment, DigitalSkillProfile, UserTelegramAuditLog } from '../types';
 import heroImg from '../assets/images/hero_sargodha_bazaar_1790802971175.jpg';
 import cowImg from '../assets/images/listing_livestock_cow_1790802991968.jpg';
 import wandaImg from '../assets/images/listing_kinnow_wanda_1790803004676.jpg';
@@ -21,11 +21,95 @@ export const INITIAL_CATEGORIES: Category[] = [
 ];
 
 export const INITIAL_USERS: UserProfile[] = [
-  { id: 1, name: 'Muhammad Akram Tayyab', mobile: '03127453108', email: 'admin@sargodhamart.com', city: 'Sargodha', area: 'University Road / Satellite Town', role: 'super_admin', activationStatus: 'active', joinedDate: 'Jan 2026' },
-  { id: 2, name: 'Malik Tariq Dairy Farm', mobile: '03001234567', email: 'tariq@sargodha.com', city: 'Shaheenabad', area: 'Canal Colony Dairy Belt', role: 'user', activationStatus: 'active', joinedDate: 'Feb 2026' },
-  { id: 3, name: 'Chaudhry Naveed Agro', mobile: '03027654321', email: 'naveed@sillanwali.com', city: 'Sillanwali', area: 'Main Mandi Citrus Road', role: 'user', activationStatus: 'active', joinedDate: 'Feb 2026' },
-  { id: 4, name: 'Rana Usman Mobile Zone', mobile: '03019876543', email: 'usman@sargodha.com', city: 'Sargodha', area: 'Trust Plaza, Kutchery Bazaar', role: 'user', activationStatus: 'active', joinedDate: 'Mar 2026' },
-  { id: 5, name: 'Asad Ali (New User)', mobile: '03031122334', email: 'asad@sargodha.com', city: 'Sargodha', area: 'Fatima Jinnah Road', role: 'user', activationStatus: 'pending', joinedDate: 'Today' }
+  {
+    id: 1,
+    name: 'Muhammad Akram Tayyab',
+    mobile: '03127453108',
+    email: 'admin@sargodhamart.com',
+    city: 'Sargodha',
+    area: 'University Road / Satellite Town',
+    role: 'super_admin',
+    activationStatus: 'active',
+    joinedDate: 'Jan 2026',
+    telegramNumber: '03127453108',
+    telegramStatus: 'APPROVED',
+    telegramSubmittedAt: '2026-01-15 10:00 AM',
+    telegramReviewedBy: 'Super Administrator',
+    telegramReviewedAt: '2026-01-15 10:05 AM',
+    telegramVisibility: 'VISIBLE',
+    contactPrivacy: 'SHOW_ALL'
+  },
+  {
+    id: 2,
+    name: 'Malik Tariq Dairy Farm',
+    mobile: '03001234567',
+    email: 'tariq@sargodha.com',
+    city: 'Shaheenabad',
+    area: 'Canal Colony Dairy Belt',
+    role: 'user',
+    activationStatus: 'active',
+    joinedDate: 'Feb 2026',
+    telegramNumber: '03001234567',
+    telegramStatus: 'APPROVED',
+    telegramSubmittedAt: '2026-02-15 11:30 AM',
+    telegramReviewedBy: 'Muhammad Akram Tayyab',
+    telegramReviewedAt: '2026-02-15 11:45 AM',
+    telegramVisibility: 'VISIBLE',
+    contactPrivacy: 'SHOW_ALL'
+  },
+  {
+    id: 3,
+    name: 'Chaudhry Naveed Agro',
+    mobile: '03027654321',
+    email: 'naveed@sillanwali.com',
+    city: 'Sillanwali',
+    area: 'Main Mandi Citrus Road',
+    role: 'user',
+    activationStatus: 'active',
+    joinedDate: 'Feb 2026',
+    telegramNumber: '03027654321',
+    telegramStatus: 'APPROVED',
+    telegramSubmittedAt: '2026-02-20 02:15 PM',
+    telegramReviewedBy: 'Muhammad Akram Tayyab',
+    telegramReviewedAt: '2026-02-20 02:30 PM',
+    telegramVisibility: 'HIDDEN',
+    contactPrivacy: 'CALL_WHATSAPP'
+  },
+  {
+    id: 4,
+    name: 'Rana Usman Mobile Zone',
+    mobile: '03019876543',
+    email: 'usman@sargodha.com',
+    city: 'Sargodha',
+    area: 'Trust Plaza, Kutchery Bazaar',
+    role: 'user',
+    activationStatus: 'active',
+    joinedDate: 'Mar 2026',
+    telegramNumber: '03019876543',
+    telegramStatus: 'REJECTED',
+    telegramSubmittedAt: '2026-03-01 04:00 PM',
+    telegramReviewedBy: 'Muhammad Akram Tayyab',
+    telegramReviewedAt: '2026-03-01 04:30 PM',
+    telegramRejectionReason: 'Telegram contact not found for this number. Please verify active Telegram account exists.',
+    telegramVisibility: 'HIDDEN',
+    contactPrivacy: 'SHOW_ALL'
+  },
+  {
+    id: 5,
+    name: 'Asad Ali (New User)',
+    mobile: '03031122334',
+    email: 'asad@sargodha.com',
+    city: 'Sargodha',
+    area: 'Fatima Jinnah Road',
+    role: 'user',
+    activationStatus: 'pending',
+    joinedDate: 'Today',
+    telegramNumber: '03031122334',
+    telegramStatus: 'PENDING',
+    telegramSubmittedAt: 'Today 10:15 AM',
+    telegramVisibility: 'HIDDEN',
+    contactPrivacy: 'SHOW_ALL'
+  }
 ];
 
 export const INITIAL_LISTINGS: Listing[] = [
@@ -193,14 +277,19 @@ export const INITIAL_PAYMENTS: ActivationPayment[] = [
     userName: 'Malik Tariq Dairy Farm',
     userCity: 'Shaheenabad',
     userPhone: '03001234567',
-    amount: 1000,
+    amount: 0,
+    activationType: 'FREE',
+    isFreeSlot: true,
     method: 'EasyPaisa',
     senderNumber: '03001234567',
-    transactionId: 'EP8472910382',
+    transactionId: 'FREE-LAUNCH-001',
     paymentScreenshot: cowImg,
     whatsappScreenshot: heroImg,
     status: 'approved',
-    adminNote: 'Verified in EasyPaisa account and verified WhatsApp channel member.',
+    adminNote: 'Launch Deal: First 20 Sellers Free Activation. WhatsApp channel follow verified.',
+    reviewedBy: 'Muhammad Akram Tayyab',
+    reviewedAt: 'Feb 15, 2026',
+    approvedAt: 'Feb 15, 2026',
     createdAt: 'Feb 15, 2026'
   },
   {
@@ -209,15 +298,63 @@ export const INITIAL_PAYMENTS: ActivationPayment[] = [
     userName: 'Asad Ali (New User)',
     userCity: 'Sargodha',
     userPhone: '03031122334',
-    amount: 1000,
+    amount: 0,
+    activationType: 'FREE',
+    isFreeSlot: true,
     method: 'EasyPaisa',
     senderNumber: '03031122334',
-    transactionId: 'EP9928172654',
+    transactionId: 'FREE-LAUNCH-SLOT',
     paymentScreenshot: phoneImg,
     whatsappScreenshot: heroImg,
     status: 'pending',
-    adminNote: 'Awaiting admin dual-verification of Rs. 1,000 payment and WhatsApp channel screenshot.',
+    adminNote: 'Launch Deal: Free seller activation applicant. Pending verification of WhatsApp channel follow screenshot.',
     createdAt: 'Today 10:15 AM'
+  }
+];
+
+export const INITIAL_TELEGRAM_AUDIT_LOGS: UserTelegramAuditLog[] = [
+  {
+    id: 1,
+    userId: 1,
+    userName: 'Muhammad Akram Tayyab',
+    telegramNumber: '03127453108',
+    status: 'APPROVED',
+    actionType: 'APPROVE',
+    reviewedBy: 'Super Administrator',
+    reviewedAt: '2026-01-15 10:05 AM',
+    timestamp: '2026-01-15 10:05 AM'
+  },
+  {
+    id: 2,
+    userId: 2,
+    userName: 'Malik Tariq Dairy Farm',
+    telegramNumber: '03001234567',
+    status: 'APPROVED',
+    actionType: 'APPROVE',
+    reviewedBy: 'Muhammad Akram Tayyab',
+    reviewedAt: '2026-02-15 11:45 AM',
+    timestamp: '2026-02-15 11:45 AM'
+  },
+  {
+    id: 3,
+    userId: 4,
+    userName: 'Rana Usman Mobile Zone',
+    telegramNumber: '03019876543',
+    status: 'REJECTED',
+    actionType: 'REJECT',
+    reviewedBy: 'Muhammad Akram Tayyab',
+    reviewedAt: '2026-03-01 04:30 PM',
+    rejectionReason: 'Telegram contact not found for this number. Please verify active Telegram account exists.',
+    timestamp: '2026-03-01 04:30 PM'
+  },
+  {
+    id: 4,
+    userId: 5,
+    userName: 'Asad Ali (New User)',
+    telegramNumber: '03031122334',
+    status: 'PENDING',
+    actionType: 'SUBMIT',
+    timestamp: 'Today 10:15 AM'
   }
 ];
 
@@ -232,5 +369,193 @@ export const INITIAL_REPORTS: ReportItem[] = [
     details: 'Seller was asked about warranty and provided polite response.',
     status: 'resolved',
     createdAt: 'Yesterday'
+  }
+];
+
+export const INITIAL_PROMOTIONS: PromotionPayment[] = [
+  {
+    id: 1,
+    userId: 2,
+    userName: 'Malik Tariq Dairy Farm',
+    userPhone: '03001234567',
+    promotionType: 'PRODUCT',
+    entityType: 'PRODUCT',
+    entityId: 1,
+    entityTitle: 'Pure Sahiwal Breed Milk Cow (18L Daily Yield)',
+    amount: 1000,
+    durationDays: 15,
+    transactionReference: 'TRX-PROMO-991283',
+    paymentScreenshot: cowImg,
+    status: 'APPROVED',
+    submittedAt: '2026-10-01 11:30',
+    reviewedAt: '2026-10-01 12:00',
+    reviewedBy: 'Super Admin',
+    startAt: '2026-10-01 12:00',
+    endAt: '2026-10-16 12:00',
+    createdAt: '2026-10-01'
+  },
+  {
+    id: 2,
+    userId: 4,
+    userName: 'Rana Usman Mobile Zone',
+    userPhone: '03019876543',
+    promotionType: 'PRODUCT',
+    entityType: 'PRODUCT',
+    entityId: 4,
+    entityTitle: 'iPhone 15 Pro Max 256GB Natural Titanium (PTA Approved)',
+    amount: 1000,
+    durationDays: 15,
+    transactionReference: 'EP-PROM-543210',
+    paymentScreenshot: phoneImg,
+    status: 'PENDING',
+    submittedAt: 'Today 09:45 AM',
+    createdAt: 'Today'
+  },
+  {
+    id: 3,
+    userId: 2,
+    userName: 'Malik Tariq Dairy Farm',
+    userPhone: '03001234567',
+    promotionType: 'PRODUCT',
+    entityType: 'PRODUCT',
+    entityId: 1,
+    entityTitle: 'Pure Sahiwal Breed Milk Cow (Previous Run)',
+    amount: 1000,
+    durationDays: 15,
+    transactionReference: 'EP-OLD-110293',
+    paymentScreenshot: cowImg,
+    status: 'EXPIRED',
+    submittedAt: '2026-09-01 10:00',
+    reviewedAt: '2026-09-01 10:30',
+    reviewedBy: 'Admin',
+    startAt: '2026-09-01 10:30',
+    endAt: '2026-09-16 10:30',
+    createdAt: '2026-09-01'
+  }
+];
+
+export const INITIAL_DIGITAL_SKILLS: DigitalSkillProfile[] = [
+  {
+    id: 1,
+    userId: 1,
+    fullName: 'Hamza Farooq',
+    username: 'hamza_designs',
+    profilePhoto: heroImg,
+    professionalTitle: 'Senior UI/UX & Website Designer',
+    mainSkill: 'Website Designer',
+    category: 'Design & Creative',
+    skills: ['Figma', 'UI/UX', 'Tailwind CSS', 'WordPress', 'React', 'Responsive Web Design'],
+    experience: '4+ Years',
+    about: 'Experienced UI/UX designer and web creator based in Sargodha. Specializing in high-converting e-commerce websites, local business branding, and modern dashboard designs. Delivering clean, mobile-first layouts.',
+    divisionId: 1,
+    districtId: 1,
+    tehsilId: 1,
+    areaId: 1,
+    divisionName: 'Sargodha Division',
+    districtName: 'Sargodha',
+    tehsilName: 'Sargodha Tehsil',
+    areaName: 'Satellite Town / University Road',
+    phone: '03127453108',
+    whatsapp: '03127453108',
+    email: 'hamza.ui@gmail.com',
+    showEmail: true,
+    portfolioLinks: [
+      { label: 'Behance Portfolio', url: 'https://behance.net' },
+      { label: 'Live Client Work', url: 'https://github.com' }
+    ],
+    servicesOffered: [
+      'Full Website UI/UX Design (Figma)',
+      'WordPress & Shopify Store Setup',
+      'Landing Page Redesign',
+      'Mobile App UI Mockups'
+    ],
+    startingRate: 15000,
+    availability: 'Freelance',
+    cvFilePath: '/uploads/cv_hamza_farooq_designer.pdf',
+    status: 'approved',
+    isFeatured: true,
+    featuredStartAt: '2026-10-01',
+    featuredEndAt: '2026-10-16',
+    createdAt: '2026-10-01'
+  },
+  {
+    id: 2,
+    userId: 2,
+    fullName: 'Zainab Bibi',
+    username: 'zainab_editor',
+    profilePhoto: heroImg,
+    professionalTitle: 'Professional Video Editor & Reels Creator',
+    mainSkill: 'Video Editor',
+    category: 'Video & Animation',
+    skills: ['Adobe Premiere Pro', 'After Effects', 'CapCut Pro', 'TikTok/Reels Ads', 'Color Grading'],
+    experience: '3 Years',
+    about: 'Creative video editor helping Sargodha & Punjab businesses grow with engaging social media reels, product promo clips, and YouTube long-form content. Fast turnaround with high attention to pacing and audio.',
+    divisionId: 1,
+    districtId: 1,
+    tehsilId: 2,
+    areaId: 2,
+    divisionName: 'Sargodha Division',
+    districtName: 'Sargodha',
+    tehsilName: 'Sillanwali Tehsil',
+    areaName: 'Main Mandi Citrus Road',
+    phone: '03001234567',
+    whatsapp: '03001234567',
+    email: 'zainab.edits@gmail.com',
+    showEmail: false,
+    portfolioLinks: [
+      { label: 'YouTube Showreel', url: 'https://youtube.com' }
+    ],
+    servicesOffered: [
+      'Viral Instagram & TikTok Reels',
+      'E-commerce Product Video Ads',
+      'YouTube Video Editing & Thumbnails'
+    ],
+    startingRate: 5000,
+    availability: 'Part-time',
+    cvFilePath: '/uploads/cv_zainab_video_editor.pdf',
+    status: 'approved',
+    isFeatured: false,
+    createdAt: '2026-10-02'
+  },
+  {
+    id: 3,
+    userId: 3,
+    fullName: 'Ali Raza',
+    username: 'ali_fullstack',
+    profilePhoto: heroImg,
+    professionalTitle: 'Full-Stack Web Developer (PHP / Laravel / React)',
+    mainSkill: 'Web Developer',
+    category: 'Development & IT',
+    skills: ['PHP', 'MySQL', 'Laravel', 'React', 'REST APIs', 'Payment Gateways'],
+    experience: '5+ Years',
+    about: 'Full-stack software engineer based in Shaheenabad. Building custom marketplace portals, inventory management software, and payment integration systems for local enterprises.',
+    divisionId: 1,
+    districtId: 1,
+    tehsilId: 1,
+    areaId: 3,
+    divisionName: 'Sargodha Division',
+    districtName: 'Sargodha',
+    tehsilName: 'Sargodha Tehsil',
+    areaName: 'Shaheenabad Canal Colony',
+    phone: '03027654321',
+    whatsapp: '03027654321',
+    email: 'ali.raza.dev@gmail.com',
+    showEmail: true,
+    portfolioLinks: [
+      { label: 'GitHub Profile', url: 'https://github.com' }
+    ],
+    servicesOffered: [
+      'Custom PHP/MySQL Marketplace Development',
+      'Payment Gateway Integration (EasyPaisa/JazzCash)',
+      'API Development & Database Optimization'
+    ],
+    startingRate: 30000,
+    availability: 'Full-time',
+    cvFilePath: '/uploads/cv_ali_raza_fullstack.pdf',
+    status: 'approved',
+    isFeatured: true,
+    featuredStartAt: '2026-10-03',
+    featuredEndAt: '2026-10-18',
+    createdAt: '2026-10-03'
   }
 ];

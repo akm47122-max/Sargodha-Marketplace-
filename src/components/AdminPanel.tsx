@@ -21,6 +21,9 @@ import {
   MapPin,
   Layers,
   MessageCircle,
+  Megaphone,
+  Star,
+  FileText,
 } from 'lucide-react';
 import {
   UserProfile,
@@ -34,9 +37,15 @@ import {
   District,
   Tehsil,
   AreaLocation,
+  PromotionPayment,
+  DigitalSkillProfile,
+  AdvertisingPackage,
+  Advertisement,
+  AdvertisingPayment,
 } from '../types';
 import { AdminSettingsManager } from './AdminSettingsManager';
 import { AdminLocationManager } from './AdminLocationManager';
+import { AdminAdvertisingManager } from './AdminAdvertisingManager';
 
 interface AdminPanelProps {
   currentUser: UserProfile;
@@ -44,6 +53,20 @@ interface AdminPanelProps {
   listings: Listing[];
   jobs: JobPost[];
   payments: ActivationPayment[];
+  promotions?: PromotionPayment[];
+  onApprovePromotion?: (id: number) => void;
+  onRejectPromotion?: (id: number, reason: string) => void;
+  skills?: DigitalSkillProfile[];
+  onToggleSkillStatus?: (id: number) => void;
+  onDeleteSkill?: (id: number) => void;
+  advertisingPackages?: AdvertisingPackage[];
+  advertisements?: Advertisement[];
+  onSaveAdvertisingPackage?: (pkg: AdvertisingPackage) => void;
+  onDeleteAdvertisingPackage?: (id: number) => void;
+  onApproveAdvertisement?: (id: number) => void;
+  onRejectAdvertisement?: (id: number, reason: string) => void;
+  onToggleAdSuspension?: (id: number) => void;
+  onRetryAdTelegram?: (id: number) => Promise<boolean>;
   reports: ReportItem[];
   settings: SiteSettings;
   onSaveSettings: (updated: SiteSettings) => void;
@@ -83,6 +106,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   listings,
   jobs,
   payments,
+  promotions = [],
+  onApprovePromotion = () => {},
+  onRejectPromotion = () => {},
+  skills = [],
+  onToggleSkillStatus = () => {},
+  onDeleteSkill = () => {},
+  advertisingPackages = [],
+  advertisements = [],
+  onSaveAdvertisingPackage = () => {},
+  onDeleteAdvertisingPackage = () => {},
+  onApproveAdvertisement = () => {},
+  onRejectAdvertisement = () => {},
+  onToggleAdSuspension = () => {},
+  onRetryAdTelegram = async () => false,
   reports,
   settings,
   onSaveSettings,
@@ -115,14 +152,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onUpdateArea = () => {},
   onDeleteArea = () => {},
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'activations' | 'products' | 'jobs' | 'locations' | 'users' | 'reports' | 'settings'>('activations');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'activations' | 'promotions' | 'advertising' | 'skills' | 'products' | 'jobs' | 'locations' | 'users' | 'reports' | 'settings'
+  >('activations');
   const [selectedVerificationPayment, setSelectedVerificationPayment] = useState<ActivationPayment | null>(null);
 
-  // 11 Key KPI Metrics
+  // Promotion tab sub-states
+  const [promoTab, setPromoTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED'>('PENDING');
+  const [promoTimeframe, setPromoTimeframe] = useState<'today' | '7days' | '30days' | 'all'>('all');
+  const [selectedPromoScreenshot, setSelectedPromoScreenshot] = useState<string | null>(null);
+  const [rejectPromoModalId, setRejectPromoModalId] = useState<number | null>(null);
+  const [rejectionReasonText, setRejectionReasonText] = useState('');
+
+  // 12 Key KPI Metrics
   const totalUsers = users.length;
   const activeUsers = users.filter((u) => u.activationStatus === 'active').length;
   const pendingActivations = payments.filter((p) => p.status === 'pending').length;
   const approvedActivations = payments.filter((p) => p.status === 'approved').length;
+  const pendingPromotions = promotions.filter((p) => p.status === 'PENDING').length;
+  const approvedPromotions = promotions.filter((p) => p.status === 'APPROVED').length;
+  const totalPromoRevenue = promotions
+    .filter((p) => p.status === 'APPROVED')
+    .reduce((acc, curr) => acc + curr.amount, 0);
   const totalProducts = listings.length;
   const activeProducts = listings.filter((l) => l.status === 'published').length;
   const disabledProducts = listings.filter((l) => l.status === 'disabled').length;
@@ -196,6 +247,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <div className="text-indigo-700 text-[10px] font-bold uppercase tracking-wider">Active Jobs</div>
           <div className="text-xl font-black text-indigo-700 mt-1">{activeJobs}</div>
         </div>
+        <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 shadow-xs">
+          <div className="text-amber-800 text-[10px] font-bold uppercase tracking-wider">📣 Promo Queue</div>
+          <div className="text-xl font-black text-amber-700 mt-1">{pendingPromotions}</div>
+        </div>
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 shadow-xs">
+          <div className="text-emerald-800 text-[10px] font-bold uppercase tracking-wider">Promo Revenue</div>
+          <div className="text-xl font-black text-emerald-700 mt-1">Rs. {totalPromoRevenue.toLocaleString()}</div>
+        </div>
         <div className="p-3.5 rounded-2xl bg-white border border-amber-200 shadow-xs">
           <div className="text-amber-700 text-[10px] font-bold uppercase tracking-wider">Reports Queue</div>
           <div className="text-xl font-black text-amber-700 mt-1">{pendingReports}</div>
@@ -214,6 +273,40 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         >
           <span>💳</span> Activation Queue ({payments.filter((p) => p.status === 'pending').length})
         </button>
+
+        <button
+          onClick={() => setActiveTab('promotions')}
+          className={`px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+            activeTab === 'promotions'
+              ? 'bg-amber-400 text-slate-950 font-black border border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
+              : 'text-slate-600 hover:text-slate-900 bg-amber-50/50'
+          }`}
+        >
+          <span>📣</span> Promotions ({pendingPromotions})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('advertising')}
+          className={`px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+            activeTab === 'advertising'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black border border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.35)]'
+              : 'text-slate-600 hover:text-slate-900 bg-amber-50/70 border border-amber-200'
+          }`}
+        >
+          <span>📢</span> Advertising ({advertisements.filter((a) => a.status === 'PENDING').length > 0 ? `${advertisements.filter((a) => a.status === 'PENDING').length} Pending` : `${advertisingPackages.length} Pkgs`})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('skills')}
+          className={`px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+            activeTab === 'skills'
+              ? 'bg-white text-fuchsia-800 border border-fuchsia-300 shadow-[0_0_12px_rgba(217,70,239,0.18)] font-black'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <span>💻</span> Digital Skills ({skills.length})
+        </button>
+
         <button
           onClick={() => setActiveTab('products')}
           className={`px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
@@ -354,6 +447,283 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* TAB: Promotions Moderation (Centralized Promote System) */}
+      {activeTab === 'promotions' && (
+        <div className="bg-white border border-amber-300 rounded-3xl p-6 shadow-[0_10px_35px_-5px_rgba(245,158,11,0.15)] space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <span>📣</span> SargodhaMart Promote & Feature Payments Queue
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                Verify Rs. 1,000 (15-day) promotion payments for Products & Digital Skills. Items become ⭐ FEATURED only after approval.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-xl">
+                Fee: Rs. 1,000 / 15 Days (Separate from Activation)
+              </span>
+            </div>
+          </div>
+
+          {/* Sub-Filters: Status & Timeframe */}
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 rounded-2xl">
+              {(['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'EXPIRED'] as const).map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setPromoTab(st)}
+                  className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                    promoTab === st
+                      ? 'bg-white text-slate-950 shadow-sm border border-slate-200'
+                      : 'text-slate-600 hover:text-slate-950'
+                  }`}
+                >
+                  {st === 'ALL' && `All (${promotions.length})`}
+                  {st === 'PENDING' && `Pending (${promotions.filter((p) => p.status === 'PENDING').length})`}
+                  {st === 'APPROVED' && `Approved (${promotions.filter((p) => p.status === 'APPROVED').length})`}
+                  {st === 'REJECTED' && `Rejected (${promotions.filter((p) => p.status === 'REJECTED').length})`}
+                  {st === 'EXPIRED' && `Expired (${promotions.filter((p) => p.status === 'EXPIRED').length})`}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 font-bold text-[11px]">Filter Date:</span>
+              <select
+                value={promoTimeframe}
+                onChange={(e) => setPromoTimeframe(e.target.value as any)}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 text-xs"
+              >
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Promotion Requests List */}
+          {promotions
+            .filter((p) => (promoTab === 'ALL' ? true : p.status === promoTab))
+            .length === 0 ? (
+            <div className="p-12 text-center rounded-2xl bg-slate-50 border border-slate-200">
+              <Megaphone className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-700">No promotion requests found in this view.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {promotions
+                .filter((p) => (promoTab === 'ALL' ? true : p.status === promoTab))
+                .map((p) => (
+                  <div
+                    key={p.id}
+                    className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-slate-700">#{p.id}</span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                            p.promotionType === 'PRODUCT'
+                              ? 'bg-cyan-100 text-cyan-800'
+                              : 'bg-fuchsia-100 text-fuchsia-800'
+                          }`}
+                        >
+                          {p.promotionType} PROMOTION
+                        </span>
+                        <span className="font-black text-slate-900 text-sm">{p.entityTitle}</span>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                            p.status === 'APPROVED'
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : p.status === 'PENDING'
+                              ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                              : p.status === 'REJECTED'
+                              ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                              : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {p.status}
+                        </span>
+                      </div>
+
+                      <div className="text-slate-600 font-medium">
+                        Seller: <strong>{p.userName}</strong> • Phone: {p.userPhone || 'N/A'} • TID:{' '}
+                        <span className="font-mono text-cyan-800 font-bold">{p.transactionReference}</span> • Amount:{' '}
+                        <strong className="text-emerald-700 font-bold">Rs. {p.amount.toLocaleString()}</strong> ({p.durationDays} Days)
+                      </div>
+
+                      <div className="text-slate-500 text-[10px]">
+                        Submitted: {p.submittedAt.slice(0, 16)}
+                        {p.startAt && p.endAt && (
+                          <span className="ml-2 font-bold text-amber-700">
+                            Active: {p.startAt.slice(0, 10)} to {p.endAt.slice(0, 10)}
+                          </span>
+                        )}
+                        {p.rejectionReason && (
+                          <span className="ml-2 text-rose-600 font-bold">Rejection: {p.rejectionReason}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {p.paymentScreenshot && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPromoScreenshot(p.paymentScreenshot)}
+                          className="px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs hover:bg-slate-100 flex items-center gap-1 shadow-xs"
+                        >
+                          <ImageIcon className="w-3.5 h-3.5 text-cyan-600" />
+                          <span>Receipt Proof</span>
+                        </button>
+                      )}
+
+                      {p.status === 'PENDING' && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => onApprovePromotion(p.id)}
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 flex items-center gap-1.5 transition-all"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Approve & Feature (15 Days)</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRejectPromoModalId(p.id);
+                              setRejectionReasonText('');
+                            }}
+                            className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-300 transition-all"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+
+                      {p.status === 'APPROVED' && onPublishToTelegram && (
+                        <button
+                          type="button"
+                          onClick={() => onPublishToTelegram(p.promotionType === 'PRODUCT' ? 'product' : 'job', p.entityId)}
+                          className="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
+                          title="Broadcast Featured Promo to Telegram Channel"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Telegram Push</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: Advertising Pricing & Package Manager */}
+      {activeTab === 'advertising' && (
+        <AdminAdvertisingManager
+          packages={advertisingPackages}
+          advertisements={advertisements}
+          onSavePackage={onSaveAdvertisingPackage}
+          onDeletePackage={onDeleteAdvertisingPackage}
+          onApproveAd={onApproveAdvertisement}
+          onRejectAd={onRejectAdvertisement}
+          onToggleAdSuspension={onToggleAdSuspension}
+          onRetryTelegram={onRetryAdTelegram}
+          settings={settings}
+        />
+      )}
+
+      {/* TAB: Digital Skills Moderation */}
+      {activeTab === 'skills' && (
+        <div className="bg-white border border-fuchsia-300 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <span>💻</span> Digital Skills & Freelance Profiles Directory
+              </h3>
+              <p className="text-xs text-slate-500">
+                Review and moderate local digital creators, website designers, video editors, and developers.
+              </p>
+            </div>
+            <span className="text-xs font-bold text-fuchsia-700 bg-fuchsia-50 border border-fuchsia-200 px-3 py-1 rounded-xl">
+              Total Profiles: {skills.length}
+            </span>
+          </div>
+
+          {skills.length === 0 ? (
+            <div className="p-12 text-center rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-500">
+              No digital skill profiles registered yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {skills.map((s) => (
+                <div
+                  key={s.id}
+                  className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={s.profilePhoto}
+                      alt={s.fullName}
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-slate-900 text-sm">{s.fullName}</span>
+                        {s.isFeatured && (
+                          <span className="px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 text-[9px] font-black uppercase">
+                            ⭐ FEATURED
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold">
+                          {s.category}
+                        </span>
+                      </div>
+                      <div className="text-xs font-bold text-fuchsia-800">{s.professionalTitle}</div>
+                      <div className="text-slate-500 text-[11px]">
+                        Main: {s.mainSkill} • {s.experience} • Location: {s.tehsilName || 'Sargodha'} • Phone: {s.phone}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {onToggleSkillStatus && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleSkillStatus(s.id)}
+                        className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                          s.status === 'approved'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-amber-100 text-amber-800 border border-amber-300'
+                        }`}
+                      >
+                        {s.status === 'approved' ? 'Active Approved' : 'Pending Approval'}
+                      </button>
+                    )}
+
+                    {onDeleteSkill && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteSkill(s.id)}
+                        className="p-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200"
+                        title="Delete skill profile"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
